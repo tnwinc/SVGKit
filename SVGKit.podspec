@@ -26,7 +26,8 @@ Pod::Spec.new do |s|
                         'Source/Sources/**/*.{h,m}',
                         'Source/UIKit additions/**/*.{h,m}',
                         'Source/Unsorted/**/*.{h,m}'
-  s.libraries = 'xml2', 'CocoaLumberjack'
+  s.libraries = 'xml2'
   s.framework = 'QuartzCore', 'CoreText'
   s.xcconfig = { 'HEADER_SEARCH_PATHS' => '$(SDKROOT)/usr/include/libxml2' }
+  s.dependency 'CocoaLumberjack'
 end
