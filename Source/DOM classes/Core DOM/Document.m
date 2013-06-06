@@ -22,9 +22,8 @@
 -(Element*) createElement:(NSString*) tagName
 {
 	Element* newElement = [[Element alloc] initWithLocalName:tagName attributes:nil];
-	
-	DDLogVerbose( @"[%@] WARNING: SVG Spec, missing feature: if there are known attributes with default values, Attr nodes representing them SHOULD BE automatically created and attached to the element.", [self class] );
-	
+
+
 	return newElement;
 }
 
@@ -68,7 +67,7 @@
 {
 	NodeList* accumulator = [[[NodeList alloc] init] autorelease];
 	[DOMHelperUtilities privateGetElementsByName:data inNamespace:nil childrenOfElement:self.documentElement addToList:accumulator];
-	
+
 	return accumulator;
 }
 
@@ -83,9 +82,8 @@
 -(Element*) createElementNS:(NSString*) namespaceURI qualifiedName:(NSString*) qualifiedName
 {
 	Element* newElement = [[Element alloc] initWithQualifiedName:qualifiedName inNameSpaceURI:namespaceURI attributes:nil];
-	
-	DDLogVerbose( @"[%@] WARNING: SVG Spec, missing feature: if there are known attributes with default values, Attr nodes representing them SHOULD BE automatically created and attached to the element.", [self class] );
-	
+
+
 	return newElement;
 }
 
@@ -102,7 +100,7 @@
 {
 	NodeList* accumulator = [[[NodeList alloc] init] autorelease];
 	[DOMHelperUtilities privateGetElementsByName:localName inNamespace:namespaceURI childrenOfElement:self.documentElement addToList:accumulator];
-	
+
 	return accumulator;
 }
 

@@ -38,7 +38,7 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
 /* references
  http://www.w3.org/TR/2011/REC-SVG11-20110816/paths.html#PathDataBNF
  http://www.w3.org/TR/2011/REC-SVG11-20110816/shapes.html#PointsBNF
- 
+
  */
 
 /*
@@ -103,7 +103,7 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
  ( "Q" | "q" ) wsp* quadratic-bezier-curveto-argument-sequence
  quadratic-bezier-curveto-argument-sequence:
  quadratic-bezier-curveto-argument
- | quadratic-bezier-curveto-argument comma-wsp? 
+ | quadratic-bezier-curveto-argument comma-wsp?
  quadratic-bezier-curveto-argument-sequence
  quadratic-bezier-curveto-argument:
  coordinate-pair comma-wsp? coordinate-pair
@@ -118,7 +118,7 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
  elliptical-arc-argument
  | elliptical-arc-argument comma-wsp? elliptical-arc-argument-sequence
  elliptical-arc-argument:
- nonnegative-number comma-wsp? nonnegative-number comma-wsp? 
+ nonnegative-number comma-wsp? nonnegative-number comma-wsp?
  number comma-wsp flag comma-wsp? flag comma-wsp? coordinate-pair
  coordinate-pair:
  coordinate comma-wsp? coordinate
@@ -157,7 +157,7 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
 
 /*
  http://www.w3.org/TR/2011/REC-SVG11-20110816/shapes.html#PointsBNF
- 
+
  list-of-points:
  wsp* coordinate-pairs? wsp*
  coordinate-pairs:
@@ -234,12 +234,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
 {
     CGPoint lastCoord = [SVGKPointsAndPathsParser readMovetoDrawto:scanner path:path relativeTo:origin isRelative:isRelative];
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     if (![scanner isAtEnd]) {
         [SVGKPointsAndPathsParser readWhitespace:scanner];
         lastCoord = [SVGKPointsAndPathsParser readMovetoDrawtoCommandGroup:scanner path:path relativeTo:origin isRelative:isRelative];
     }
-    
+
     return lastCoord;
 }
 
@@ -262,12 +262,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Mm"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan move to command");
     if (!ok) return origin;
-    
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     CGPoint lastCoordinate = [SVGKPointsAndPathsParser readMovetoArgumentSequence:scanner path:path relativeTo:origin isRelative:isRelative];
     return lastCoordinate;
 }
@@ -282,15 +282,14 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint coord = CGPointMake(p.x+origin.x, p.y+origin.y);
     CGPathMoveToPoint(path, NULL, coord.x, coord.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: MOVED to %2.2f, %2.2f", [SVGKPointsAndPathsParser class], coord.x, coord.y );
 #endif
-    
+
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     if (![scanner isAtEnd]) {
         coord = [SVGKPointsAndPathsParser readLinetoArgumentSequence:scanner path:path relativeTo:(isRelative)?coord:origin isRelative:isRelative];
     }
-    
+
     return coord;
 }
 
@@ -304,7 +303,7 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGFloat x = [SVGKPointsAndPathsParser readCoordinate:scanner];
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
     CGFloat y = [SVGKPointsAndPathsParser readCoordinate:scanner];
-    
+
     CGPoint p = CGPointMake(x, y);
     return p;
 }
@@ -318,7 +317,7 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     return f;
 }
 
-/** 
+/**
  lineto:
  ( "L" | "l" ) wsp* lineto-argument-sequence
  */
@@ -327,17 +326,17 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Ll"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan line to command");
     if (!ok) return origin;
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     CGPoint lastCoordinate = [SVGKPointsAndPathsParser readLinetoArgumentSequence:scanner path:path relativeTo:origin isRelative:isRelative];
     return lastCoordinate;
 }
 
-/** 
+/**
  lineto-argument-sequence:
  coordinate-pair
  | coordinate-pair comma-wsp? lineto-argument-sequence
@@ -348,14 +347,13 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint coord = CGPointMake(p.x+origin.x, p.y+origin.y);
     CGPathAddLineToPoint(path, NULL, coord.x, coord.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: LINE to %2.2f, %2.2f", [SVGKPointsAndPathsParser class], coord.x, coord.y );
 #endif
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
     if (![scanner isAtEnd]) {
         coord = [SVGKPointsAndPathsParser readLinetoArgumentSequence:scanner path:path relativeTo:(isRelative)?coord:origin isRelative:isRelative];
     }
-    
+
     return coord;
 }
 
@@ -368,12 +366,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Qq"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan quadratic curve to command");
     if (!ok) return SVGCurveZero;
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     SVGCurve lastCurve = [SVGKPointsAndPathsParser readQuadraticCurvetoArgumentSequence:scanner path:path relativeTo:origin isRelative:isRelative];
     return lastCurve;
 }
@@ -385,11 +383,11 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
 + (SVGCurve) readQuadraticCurvetoArgumentSequence:(NSScanner*)scanner path:(CGMutablePathRef)path relativeTo:(CGPoint)origin isRelative:(BOOL) isRelative
 {
     SVGCurve curve = [SVGKPointsAndPathsParser readQuadraticCurvetoArgument:scanner path:path relativeTo:origin];
-    
+
     if (![scanner isAtEnd]) {
         curve = [SVGKPointsAndPathsParser readQuadraticCurvetoArgumentSequence:scanner path:path relativeTo:(isRelative ? curve.p : origin) isRelative:isRelative];
     }
-    
+
     return curve;
 }
 
@@ -402,19 +400,18 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint p1 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord1 = CGPointMake(p1.x+origin.x, p1.y+origin.y);
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     CGPoint p2 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord2 = CGPointMake(p2.x+origin.x, p2.y+origin.y);
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     CGPathAddQuadCurveToPoint(path, NULL, coord1.x, coord1.y, coord2.x, coord2.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: QUADRATIC CURVE to (%2.2f, %2.2f)..(%2.2f, %2.2f)", [SVGKPointsAndPathsParser class], coord1.x, coord1.y, coord2.x, coord2.y );
 #endif
-    
+
     return SVGCurveMake(coord1.x, coord1.y, 0.0f, 0.0f, coord2.x, coord2.y);
 }
- 
+
 /**
  curveto:
  ( "C" | "c" ) wsp* curveto-argument-sequence
@@ -424,12 +421,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Cc"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan curve to command");
     if (!ok) return SVGCurveZero;
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     SVGCurve lastCurve = [SVGKPointsAndPathsParser readCurvetoArgumentSequence:scanner path:path relativeTo:origin isRelative:isRelative];
     return lastCurve;
 }
@@ -442,11 +439,11 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
 + (SVGCurve) readCurvetoArgumentSequence:(NSScanner*)scanner path:(CGMutablePathRef)path relativeTo:(CGPoint)origin isRelative:(BOOL) isRelative
 {
     SVGCurve curve = [SVGKPointsAndPathsParser readCurvetoArgument:scanner path:path relativeTo:origin];
-    
+
     if (![scanner isAtEnd]) {
         curve = [SVGKPointsAndPathsParser readCurvetoArgumentSequence:scanner path:path relativeTo:(isRelative ? curve.p : origin) isRelative:isRelative];
     }
-    
+
     return curve;
 }
 /**
@@ -458,20 +455,19 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint p1 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord1 = CGPointMake(p1.x+origin.x, p1.y+origin.y);
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     CGPoint p2 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord2 = CGPointMake(p2.x+origin.x, p2.y+origin.y);
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     CGPoint p3 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord3 = CGPointMake(p3.x+origin.x, p3.y+origin.y);
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     CGPathAddCurveToPoint(path, NULL, coord1.x, coord1.y, coord2.x, coord2.y, coord3.x, coord3.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: CURVE to (%2.2f, %2.2f)..(%2.2f, %2.2f)..(%2.2f, %2.2f)", [SVGKPointsAndPathsParser class], coord1.x, coord1.y, coord2.x, coord2.y, coord3.x, coord3.y );
 #endif
-    
+
     return SVGCurveMake(coord1.x, coord1.y, coord2.x, coord2.y, coord3.x, coord3.y);
 }
 
@@ -484,12 +480,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Ss"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan smooth curve to command");
     if (!ok) return SVGCurveZero;
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     SVGCurve lastCurve = [SVGKPointsAndPathsParser readSmoothCurvetoArgumentSequence:scanner path:path relativeTo:origin withPrevCurve:prevCurve];
     return lastCurve;
 }
@@ -502,11 +498,11 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
 + (SVGCurve) readSmoothCurvetoArgumentSequence:(NSScanner*)scanner path:(CGMutablePathRef)path relativeTo:(CGPoint)origin withPrevCurve:(SVGCurve)prevCurve
 {
     SVGCurve curve = [SVGKPointsAndPathsParser readSmoothCurvetoArgument:scanner path:path relativeTo:origin withPrevCurve:prevCurve];
-    
+
     if (![scanner isAtEnd]) {
         curve = [SVGKPointsAndPathsParser readSmoothCurvetoArgumentSequence:scanner path:path relativeTo:origin withPrevCurve:prevCurve];
     }
-    
+
     return curve;
 }
 
@@ -519,10 +515,10 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint p1 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord1 = CGPointMake(p1.x+origin.x, p1.y+origin.y);
     [SVGKPointsAndPathsParser readCommaAndWhitespace:scanner];
-    
+
     CGPoint p2 = [SVGKPointsAndPathsParser readCoordinatePair:scanner];
     CGPoint coord2 = CGPointMake(p2.x+origin.x, p2.y+origin.y);
-    
+
     SVGCurve thisCurve;
     if (SVGCurveEqualToCurve(SVGCurveZero, prevCurve)) {
         // assume control point is coincident with the current point
@@ -534,12 +530,11 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
         CGPoint mirrorCoord = CGPointMake(currentPoint.x+(currentPoint.x-controlPoint.x), currentPoint.y+(currentPoint.y-controlPoint.y));
         thisCurve = SVGCurveMake(mirrorCoord.x, mirrorCoord.y, coord1.x, coord1.y, coord2.x, coord2.y);
     }
-    
+
     CGPathAddCurveToPoint(path, NULL, thisCurve.c1.x, thisCurve.c1.y, thisCurve.c2.x, thisCurve.c2.y, thisCurve.p.x, thisCurve.p.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: SMOOTH CURVE to (%2.2f, %2.2f)..(%2.2f, %2.2f)..(%2.2f, %2.2f)", [SVGKPointsAndPathsParser class], thisCurve.c1.x, thisCurve.c1.y, thisCurve.c2.x, thisCurve.c2.y, thisCurve.p.x, thisCurve.p.y );
 #endif
-	
+
     return thisCurve;
 }
 
@@ -556,7 +551,6 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint coord = CGPointMake(currentPoint.x, currentPoint.y+(vertCoord.y-currentPoint.y));
     CGPathAddLineToPoint(path, NULL, coord.x, coord.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: VERTICAL LINE to (%2.2f, %2.2f)", [SVGKPointsAndPathsParser class], coord.x, coord.y );
 #endif
     return coord;
 }
@@ -570,12 +564,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Vv"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan vertical line to command");
     if (!ok) return origin;
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     CGPoint lastCoordinate = [SVGKPointsAndPathsParser readVerticalLinetoArgumentSequence:scanner path:path relativeTo:origin];
     return lastCoordinate;
 }
@@ -593,7 +587,6 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     CGPoint coord = CGPointMake(currentPoint.x+(horizCoord.x-currentPoint.x), currentPoint.y);
     CGPathAddLineToPoint(path, NULL, coord.x, coord.y);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: HORIZONTAL LINE to (%2.2f, %2.2f)", [SVGKPointsAndPathsParser class], coord.x, coord.y );
 #endif
     return coord;
 }
@@ -607,12 +600,12 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Hh"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan horizontal line to command");
     if (!ok) return origin;
-	
+
     [SVGKPointsAndPathsParser readWhitespace:scanner];
-    
+
     CGPoint lastCoordinate = [SVGKPointsAndPathsParser readHorizontalLinetoArgumentSequence:scanner path:path relativeTo:origin];
     return lastCoordinate;
 }
@@ -622,15 +615,14 @@ inline BOOL SVGCurveEqualToCurve(SVGCurve curve1, SVGCurve curve2)
     NSString* cmd = nil;
     NSCharacterSet* cmdFormat = [NSCharacterSet characterSetWithCharactersInString:@"Zz"];
     BOOL ok = [scanner scanCharactersFromSet:cmdFormat intoString:&cmd];
-    
+
     NSAssert(ok, @"failed to scan close command");
     if (!ok) return origin;
-	
+
     CGPathCloseSubpath(path);
 #if DEBUG_PATH_CREATION
-	DDLogCWarn(@"[%@] PATH: finished path", [SVGKPointsAndPathsParser class] );
 #endif
-    
+
     return origin;
 }
 

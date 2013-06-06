@@ -242,18 +242,18 @@ static const SVGColor gColorValues[NUM_COLORS] = {
 
 SVGColor ColorValueWithName (const char *name) {
 	int idx = -1;
-	
+
 	for (int n = 0; n < NUM_COLORS; n++) {
 		if (!strcmp(gColorNames[n], name)) {
 			idx = n;
 			break;
 		}
 	}
-	
+
 	if (idx == -1) {
 		return SVGColorMake(0, 0, 0, 255); // black
 	}
-	
+
 	return gColorValues[idx];
 }
 
@@ -271,34 +271,34 @@ SVGColor SVGColorFromString (const char *string) {
 	NSCAssert(string != NULL, @"NullPointerException: you gave us a null pointer, very bad thing to do...");
 	SVGColor color;
 	bzero(&color, sizeof(color));
-	
+
 	color.a = 0xFF;
-	
+
 	if (!strncmp(string, "rgb(", 4)) {
 		size_t len = strlen(string);
-		
+
 		char accum[MAX_ACCUM];
 		bzero(accum, MAX_ACCUM);
-		
+
 		int accumIdx = 0, currComponent = 0;
 		Phase phase = PhaseNone;
-		
+
 		for (size_t n = 0; n < len; n++) {
 			char c = string[n];
-			
+
 			if (c == '\n' || c == '\t' || c == ' ') {
 				continue;
 			}
-			
+
 			if (!strcmp(accum, "rgb")) {
 				phase = PhaseRGB;
 			}
-			
+
 			if (phase == PhaseRGB) {
 				if (c == '(') {
 					bzero(accum, MAX_ACCUM);
 					accumIdx = 0;
-					
+
 					continue;
 				}
 				else if (c == ',') {
@@ -310,10 +310,10 @@ SVGColor SVGColorFromString (const char *string) {
 						color.g = atoi(accum);
 						currComponent++;
 					}
-					
+
 					bzero(accum, MAX_ACCUM);
 					accumIdx = 0;
-					
+
 					continue;
 				}
 				else if (c == ')' && currComponent == 2) {
@@ -321,22 +321,22 @@ SVGColor SVGColorFromString (const char *string) {
 					break;
 				}
 			}
-			
+
 			accum[accumIdx++] = c;
 		}
 	}
 	else if (!strncmp(string, "#", 1)) {
 		const char *hexString = string + 1;
-		
+
 		if (strlen(hexString) == 6)
 		{
 			char r[3], g[3], b[3];
 			r[2] = g[2] = b[2] = '\0';
-			
+
 			strncpy(r, hexString, 2);
 			strncpy(g, hexString + 2, 2);
 			strncpy(b, hexString + 4, 2);
-			
+
 			color.r = strtol(r, NULL, 16);
 			color.g = strtol(g, NULL, 16);
 			color.b = strtol(b, NULL, 16);
@@ -345,15 +345,15 @@ SVGColor SVGColorFromString (const char *string) {
 		{
 			char r[3], g[3], b[3];
 			r[2] = g[2] = b[2] = '\0';
-			
+
 			strncpy(r, hexString, 1);
 			strncpy(g, hexString + 1, 1);
 			strncpy(b, hexString + 2, 1);
-			
+
 			color.r = strtol(r, NULL, 16);
 			color.g = strtol(g, NULL, 16);
 			color.b = strtol(b, NULL, 16);
-			
+
 			/** because 3-digit hex notation "F" means "FF" ... "1" means "11" ... etc */
 			color.r += color.r * 16;
 			color.g += color.g * 16;
@@ -363,62 +363,61 @@ SVGColor SVGColorFromString (const char *string) {
 		{
 			color = SVGColorMake(0, 0, 0, 255);
 		}
-		
+
 	}
 	else {
 		color = ColorValueWithName(string);
 	}
-	
+
 	return color;
 }
 
 CGFloat SVGPercentageFromString (const char *string) {
 	size_t len = strlen(string);
-	
+
 	if (string[len-1] != '%') {
-		DDLogCWarn(@"Invalid percentage: %s", string);
 		return -1;
 	}
-	
+
 	return atoi(string) / 100.0f;
 }
 
 CGMutablePathRef createPathFromPointsInString (const char *string, boolean_t close) {
 	CGMutablePathRef path = CGPathCreateMutable();
-	
+
 	size_t len = strlen(string);
-	
+
 	char accum[MAX_ACCUM];
 	bzero(accum, MAX_ACCUM);
-	
+
 	int accumIdx = 0, currComponent = 0;
-	
+
 	for (size_t n = 0; n <= len; n++) {
 		char c = string[n];
-		
+
 		if (c == '\n' || c == '\t' || c == ' ' || c == ',' || c == '\0') {
 			accum[accumIdx] = '\0';
-			
+
 			static float x, y;
-			
+
 			if (currComponent == 0 && accumIdx != 0) {
 				sscanf( accum, "%g", &x );
 				currComponent++;
 			}
 			else if (currComponent == 1) {
-				
+
 				sscanf( accum, "%g", &y );
-				
+
 				if (CGPathIsEmpty(path)) {
 					CGPathMoveToPoint(path, NULL, x, y);
 				}
 				else {
 					CGPathAddLineToPoint(path, NULL, x, y);
 				}
-				
+
 				currComponent = 0;
 			}
-			
+
 			bzero(accum, MAX_ACCUM);
 			accumIdx = 0;
 		}
@@ -426,17 +425,17 @@ CGMutablePathRef createPathFromPointsInString (const char *string, boolean_t clo
 			accum[accumIdx++] = c;
 		}
 	}
-	
+
 	if (close) {
 		CGPathCloseSubpath(path);
 	}
-	
+
 	return path;
 }
 
 CGColorRef CGColorWithSVGColor (SVGColor color) {
 	CGColorRef outColor = NULL;
-	
+
 #if TARGET_OS_IPHONE
 	outColor = [UIColor colorWithRed:RGB_N(color.r)
 							   green:RGB_N(color.g)
@@ -445,6 +444,6 @@ CGColorRef CGColorWithSVGColor (SVGColor color) {
 #else
 	outColor = CGColorCreateGenericRGB(RGB_N(color.r), RGB_N(color.g), RGB_N(color.b), RGB_N(color.a));
 #endif
-	
+
 	return outColor;
 }

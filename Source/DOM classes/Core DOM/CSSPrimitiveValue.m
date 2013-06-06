@@ -40,7 +40,7 @@
 {
 	self.primitiveType = unitType;
 	self.internalValue = floatValue;
-	
+
 	self.internalString = nil;
 }
 
@@ -49,7 +49,7 @@
 	/** Easy case: you're asking for the same unit as the originally stored units */
 	if( unitType == self.primitiveType )
 		return self.internalValue;
-	
+
 	switch( self.primitiveType )
 	{
 		case CSS_UNKNOWN:
@@ -61,7 +61,7 @@
 				NSAssert( FALSE, @"Asked to convert a UNKNOWN value to a different type (%i)", unitType );
 			}
 		}
-			
+
 		case CSS_CM:
 		case CSS_IN:
 		case CSS_MM:
@@ -87,13 +87,13 @@
 				{
 					valueAsInches = self.internalValue * 12.0f / 72.0f;
 				}break;
-				
+
 				default:
 				{
 					NSAssert( FALSE, @"This line is impossible but Apple's compiler is crap" );
 				}
 			}
-			
+
 			switch( unitType )
 			{
 				case CSS_CM:
@@ -116,38 +116,38 @@
 				{
 					return valueAsInches * self.pixelsPerInch;
 				}break;
-				
+
 				default:
 				{
 					NSAssert( FALSE, @"Asked to convert a value in centimetres to an incompatible unit type (%i)", unitType );
 				}
 			}
 		} break;
-		
+
 		case CSS_DEG:
 		case CSS_GRAD:
 		case CSS_RAD:
 		{
 			NSAssert( FALSE, @"Asked to convert an Angle value to a different type (NO conversions for this type are currently supported) (%i)", unitType );
 		} break;
-			
+
 		case CSS_COUNTER:
 		{
 			NSAssert( FALSE, @"Asked to convert a Counter value to a different type (NO conversions for this type are currently supported) (%i)", unitType );
 		} break;
-			
+
 		case CSS_DIMENSION:
 		{
 			NSAssert( FALSE, @"Asked to convert a Dimension value to a different type (NO conversions for this type are currently supported) (%i)", unitType );
 		} break;
-			
+
 		case CSS_EMS:
 		case CSS_EXS:
 		case CSS_PX:
 		{
 			NSAssert( FALSE, @"Asked to convert a Relative Length value to a different type (NO conversions for this type are currently supported) (%i)", unitType );
 		}break;
-			
+
 		case CSS_HZ:
 		case CSS_MS:
 		case CSS_KHZ:
@@ -155,7 +155,7 @@
 		{
 			NSAssert( FALSE, @"Asked to convert a Time or Frequency value to a different type (NO conversions for this type are currently supported) (%i)", unitType );
 		}break;
-			
+
 		case CSS_NUMBER:
 		{
 			if( unitType == CSS_PX ) /** Dom 1 spec allows this, SVG Spec says "this is correct by spec", and DOM 2 spec says this is illegal. Most CSS interpreters do it... */
@@ -167,7 +167,7 @@
 				NSAssert( FALSE, @"Asked to convert a Number to a different type (NO conversions for this type are currently supported) (%i)", unitType );
 			}
 		}break;
-			
+
 		case CSS_PERCENTAGE:
 		{
 			if( unitType == CSS_NUMBER )
@@ -177,13 +177,13 @@
 			else
 				NSAssert( FALSE, @"Asked to convert a Percentage value to a different type (%i)", unitType );
 		}break;
-		
+
 		default:
 		{
 			NSAssert( FALSE, @"Asked to convert a (%i) value to a (%i) (couldn't find a valid conversion route). Float (4 d.p.) = %2.4f, String = %@", self.primitiveType, unitType, self.internalValue, self.internalString );
 		}
 	}
-	
+
 	return 0.0f; // this will never happen. you should have Asserted by now, or else returned early with the correct value
 }
 
@@ -191,7 +191,7 @@
 {
 	self.primitiveType = stringType;
 	self.internalString = stringValue;
-	
+
 	self.internalValue = 0.0f;
 }
 
@@ -222,7 +222,7 @@
 	[_cssText release];
 	_cssText = newCssText;
 	[_cssText retain];
-	
+
 	/** the css text value has been set, so we need to split the elements up and save them in the internal array */
 	if( _cssText == nil
 	|| _cssText.length == 0 )
@@ -267,12 +267,12 @@
 	{
 		/**
 		 Three possible outcomes left:
-		 
+
 		 1. It's a pure number, no units (in CSS, that's rare - but in SVG it's common, and defined by Spec to be "the same as PX")
 		 2. It's a string, one of many different CSS string types
 		 3. It's a corrupt file
 		 */
-		
+
 		/**
 		 NSScaner is an Apple class that SPECIFICALLY will refuse to return a number if there are any non-numberic characters in the string */
 		NSScanner *scanner = [NSScanner scannerWithString: _cssText];
@@ -286,7 +286,6 @@
 		{
 			/* Option 2: it's a string - or corrupt, which we're not going to handle here */
 #if DEBUG_DOM_PARSING
-			DDLogVerbose(@"[%@] WARNING: not bothering to work out 'what kind of CSS string' this string is. CSS is stupid. String = %@", [self class], _cssText );
 #endif
 			[self setStringValue:CSS_STRING stringValue:_cssText]; // -------- NB: we allow any string-to-string conversion, so it's not a huge problem that we dont correctly detect "url" versus "other kind of string". I hate CSS Parsing...
 		}

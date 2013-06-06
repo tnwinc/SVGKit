@@ -23,7 +23,7 @@
 - (void)postProcessAttributesAddingErrorsTo:(SVGKParseResult *)parseResult
 {
 	[super postProcessAttributesAddingErrorsTo:parseResult];
-	
+
 	[self parseData:[self getAttribute:@"d"]];
 }
 
@@ -34,22 +34,22 @@
     CGPoint lastCoordinate = CGPointZero;
     SVGCurve lastCurve = SVGCurveZero;
     BOOL foundCmd;
-    
+
     NSCharacterSet *knownCommands = [NSCharacterSet characterSetWithCharactersInString:@"MmLlCcVvHhAaSsQqTtZz"];
     NSString* command;
-    
+
     do {
-        
+
         command = nil;
         foundCmd = [dataScanner scanCharactersFromSet:knownCommands intoString:&command];
-        
+
         if (command.length > 1) {
             // Take only one char (it can happen that multiple commands are consecutive, as "ZM" - so we only want to get the "Z")
             const int tooManyChars = command.length-1;
             command = [command substringToIndex:1];
             [dataScanner setScanLocation:([dataScanner scanLocation] - tooManyChars)];
         }
-        
+
         if (foundCmd) {
             if ([@"z" isEqualToString:command] || [@"Z" isEqualToString:command]) {
                 lastCoordinate = [SVGKPointsAndPathsParser readCloseCommand:[NSScanner scannerWithString:command]
@@ -59,11 +59,11 @@
                 NSString* cmdArgs = nil;
                 BOOL foundParameters = [dataScanner scanUpToCharactersFromSet:knownCommands
                                                                    intoString:&cmdArgs];
-                
+
                 if (foundParameters) {
                     NSString* commandWithParameters = [command stringByAppendingString:cmdArgs];
                     NSScanner* commandScanner = [NSScanner scannerWithString:commandWithParameters];
-                    
+
                     if ([@"m" isEqualToString:command]) {
                         lastCoordinate = [SVGKPointsAndPathsParser readMovetoDrawtoCommandGroups:commandScanner
                                                                         path:path
@@ -145,15 +145,14 @@
                                                                       isRelative:FALSE];
                         lastCoordinate = lastCurve.p;
                     } else {
-                        DDLogWarn(@"unsupported command %@", command);
                     }
                 }
             }
         }
-        
+
     } while (foundCmd);
-	
-    
+
+
 	self.pathForShapeInRelativeCoords = path;
 	CGPathRelease(path);
 }

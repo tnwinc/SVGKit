@@ -50,7 +50,7 @@
     self.currentView = nil;
     self.currentTranslate = nil;
     self.styleSheets = nil;
-	[super dealloc];	
+	[super dealloc];
 }
 
 #pragma mark - CSS Spec methods (via the DocumentCSS protocol)
@@ -64,7 +64,7 @@
 -(CSSStyleDeclaration *)getOverrideStyle:(Element *)element pseudoElt:(NSString *)pseudoElt
 {
 	NSAssert(FALSE, @"Not implemented yet");
-	
+
 	return nil;
 }
 
@@ -114,70 +114,67 @@
 
 - (void)postProcessAttributesAddingErrorsTo:(SVGKParseResult *)parseResult {
 	[super postProcessAttributesAddingErrorsTo:parseResult];
-	
+
 	/**
 	 If the width + height are missing, we have to get an image width+height from the USER before we even START parsing.
-	 
+
 	 There is NO SUPPORT IN THE SVG SPEC TO ALLOW THIS. This is strange, but they specified this part badly, so it's not a surprise.
-	 
+
 	 We would need to put extra (NON STANDARD) properties on SVGDocument, for the "viewport width and height",
 	 and then in *this* method, if we're missing a width or height, take the values from the SVGDocument's temporary/default width height
-	 
+
 	 (NB: the input to this method "SVGKParseResult" has a .parsedDocument variable, that's how we'd fetch those values here
 	 */
-	
+
 	NSString* stringWidth = [self getAttribute:@"width"];
 	NSString* stringHeight = [self getAttribute:@"height"];
-	
+
 	if( stringWidth == nil || stringWidth.length < 1 )
 		self.width = nil; // i.e. undefined
 	else
 		self.width = [SVGLength svgLengthFromNSString:[self getAttribute:@"width"]];
-	
+
 	if( stringHeight == nil || stringHeight.length < 1 )
 		self.height = nil; // i.e. undefined
 	else
 		self.height = [SVGLength svgLengthFromNSString:[self getAttribute:@"height"]];
-	
+
 	/* set the frameRequestedViewport appropriately (NB: spec doesn't allow for this but it REQUIRES it to be done and saved!) */
 	if( self.width != nil && self.height != nil )
 		self.requestedViewport = SVGRectMake( 0, 0, [self.width pixelsValue], [self.height pixelsValue] );
 	else
 		self.requestedViewport = SVGRectUninitialized();
-	
-	
+
+
 	/**
 	 NB: this is VERY CONFUSING due to badly written SVG Spec, but: the viewport MUST NOT be set by the parser,
 	 it MUST ONLY be set by the "renderer" -- and the renderer MAY have decided to use a different viewport from
 	 the one that the SVG file *implies* (e.g. if the user scales the SVG, the viewport WILL BE DIFFERENT,
 	 by definition!
-	 
+
 	 ...However: the renderer will ALWAYS start with the default viewport values (that are calcualted by the parsing process)
 	 and it makes it much cleaner and safer to implement if we have the PARSER set the viewport initially
-	 
+
 	 (and the renderer will IMMEDIATELY overwrite them once the parsing is finished IFF IT NEEDS TO)
 	 */
 	self.viewport = self.requestedViewport; // renderer can/will change the .viewport, but .requestedViewport can only be set by the PARSER
-	
+
 	if( [[self getAttribute:@"viewBox"] length] > 0 )
 	{
 		NSArray* boxElements = [[self getAttribute:@"viewBox"] componentsSeparatedByString:@" "];
-		
+
 		_viewBox = SVGRectMake([[boxElements objectAtIndex:0] floatValue], [[boxElements objectAtIndex:1] floatValue], [[boxElements objectAtIndex:2] floatValue], [[boxElements objectAtIndex:3] floatValue]);
 	}
 	else
 	{
-		self.viewBox = SVGRectUninitialized(); // VERY IMPORTANT: we MUST make it clear this was never initialized, instead of saying its 0,0,0,0 !		
+		self.viewBox = SVGRectUninitialized(); // VERY IMPORTANT: we MUST make it clear this was never initialized, instead of saying its 0,0,0,0 !
 	}
-		DDLogVerbose(@"[%@] WARNING: SVG spec says we should calculate the 'intrinsic aspect ratio'. Some badly-made SVG files work better if you do this and then post-multiply onto the specified viewBox attribute ... BUT they ALSO require that you 're-center' them inside the newly-created viewBox; and the SVG Spec DOES NOT SAY you should do that. All examples so far were authored in Inkscape, I think, so ... I think it's a serious bug in Inkscape that has tricked people into making incorrect SVG files. For example, c.f. http://en.wikipedia.org/wiki/File:BlankMap-World6-Equirectangular.svg", [self class]);
         //osx logging
-#if TARGET_OS_IPHONE        
-        DDLogVerbose(@"[%@] DEBUG INFO: set document viewBox = %@", [self class], NSStringFromCGRect( CGRectFromSVGRect(self.viewBox)));
+#if TARGET_OS_IPHONE
 #else
         //mac logging
-     DDLogVerbose(@"[%@] DEBUG INFO: set document viewBox = %@", [self class], NSStringFromRect(self.viewBox));
-#endif   
-	
+#endif
+
 }
 
 - (SVGElement *)findFirstElementOfClass:(Class)class {
@@ -186,26 +183,26 @@
 		if ([element isKindOfClass:class])
 			return element;
 	}
-	
+
 	return nil;
 }
 
 - (CALayer *) newLayer
 {
-	
+
 	CALayer* _layer = [[CALayerWithChildHitTest layer] retain];
-	
+
 	[SVGHelperUtilities configureCALayer:_layer usingElement:self];
-	
+
 	/** <SVG> tags know exactly what size/shape their layer needs to be - it's explicit in their width + height attributes! */
 	CGRect newBoundsFromSVGTag = CGRectFromSVGRect( self.viewport );
 	_layer.frame = newBoundsFromSVGTag; // assign to FRAME, not to BOUNDS: Apple has some weird bugs where for particular numeric values (!) assignment to bounds will cause the origin to jump away from (0,0)!
-	
+
 	return _layer;
 }
 
 - (void)layoutLayer:(CALayer *)layer {
- 	
+
 	/**
 	According to the SVG spec ... what this method originaly did is illegal. I've deleted all of it, and now a few more SVG's render correctly, that
 	 previously were rendering with strange offsets at the top level

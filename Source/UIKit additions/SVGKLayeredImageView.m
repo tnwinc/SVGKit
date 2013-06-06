@@ -20,7 +20,7 @@
 - (id)init
 {
 	NSAssert(false, @"init not supported, use initWithSVGKImage:");
-    
+
     return nil;
 }
 
@@ -43,13 +43,12 @@
 {
 	if( im == nil )
 	{
-		DDLogWarn(@"[%@] WARNING: you have initialized an [%@] with a blank image (nil). Possibly because you're using Storyboards or NIBs which Apple won't allow us to decorate. Make sure you assign an SVGKImage to the .image property!", [self class], [self class]);
-		
+
 		self = [super initWithFrame:CGRectMake(0,0,100,100)]; // coincides with the inline SVG below!
 		if( self )
 		{
 			self.backgroundColor = [UIColor clearColor];
-			
+
 /**
  ************* NB: it is critical that the string we're about to create is NOT INDENTED - the tabs would break the parsing!
  */
@@ -101,13 +100,13 @@ y=\"1030.2456\" \
 style=\"font-size:24px;fill:#fffc45;fill-opacity:1\">SVG</tspan></text> \
 </g> \
 </svg>";
-			
+
 			NSLog(@"About to make a blank image using the inlined SVG = %@", svgStringDefaultContents);
-			
+
 			SVGKImage* defaultBlankImage = [SVGKImage imageWithSource:[SVGKSourceString sourceFromContentsOfString:svgStringDefaultContents]];
-			
+
 			self.backgroundColor = [UIColor cyanColor];
-			
+
 			((SVGKLayer*) self.layer).SVGImage = defaultBlankImage;
 		}
 	}
@@ -117,12 +116,12 @@ style=\"font-size:24px;fill:#fffc45;fill-opacity:1\">SVG</tspan></text> \
 		if (self)
 		{
 			self.backgroundColor = [UIColor clearColor];
-			
+
 			((SVGKLayer*) self.layer).SVGImage = im;
-			
+
 		}
 	}
-	
+
     return self;
 }
 
@@ -150,7 +149,7 @@ style=\"font-size:24px;fill:#fffc45;fill-opacity:1\">SVG</tspan></text> \
 
 - (void)dealloc
 {
-	
+
     [super dealloc];
 }
 
