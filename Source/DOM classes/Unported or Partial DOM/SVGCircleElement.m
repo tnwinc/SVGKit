@@ -13,7 +13,6 @@
 
 - (CGFloat)r {
 	if (self.rx != self.ry) {
-		DDLogVerbose(@"Undefined radius of circle");
 		return 0.0f;
 	}
 	
